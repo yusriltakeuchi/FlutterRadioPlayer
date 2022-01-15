@@ -301,7 +301,9 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
                 playbackNotificationId,
                 R.string.channel_name.toString(),
                 mediaDescriptionAdapter
-        )
+        ).setNotificationListener(notificationListener)
+                .setChannelNameResourceId(R.string.channel_name)
+                .setChannelDescriptionResourceId(R.string.channel_description)
                 .build()
 //
 //        playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(
