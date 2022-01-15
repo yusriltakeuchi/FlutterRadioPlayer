@@ -4,8 +4,8 @@ version '1.0-SNAPSHOT'
 buildscript {
 
     // version numbers
-    ext.kotlin_version = '1.3.50'
-    ext.exo_player_version = '2.11.2'
+    ext.kotlin_version = '1.5.31'
+    ext.exo_player_version = "2.15.1"
 
     repositories {
         google()
@@ -13,7 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:4.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }

@@ -226,9 +226,11 @@ public class FlutterRadioPlayerPlugin : FlutterPlugin, MethodCallHandler, Activi
 
     private fun stop() {
         logger.info("Attempting to stop music and unbind services....")
-        isBound = false
-        applicationContext.unbindService(serviceConnection)
-        coreService.stop()
+        if (isBound == true) {
+            isBound = false
+            applicationContext.unbindService(serviceConnection)
+            coreService.stop()
+        }
     }
 
     private fun setUrl(streamUrl: String, playWhenReady: String) {
