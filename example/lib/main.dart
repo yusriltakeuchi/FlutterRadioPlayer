@@ -29,7 +29,7 @@ class _MyAppState extends State<MyApp> {
       await _flutterRadioPlayer.init(
         "Flutter Radio Example",
         "Live",
-        "http://perseus.shoutca.st:9899/stream?type=http&nocache=1906",
+        "https://n0e.radiojar.com/7csmg90fuqruv?rj-tok=AAABfi5ajaYAnTvcvZGQDWdZIg&rj-ttl=5",
         "false",
       );
     } on PlatformException {
@@ -51,8 +51,8 @@ class _MyAppState extends State<MyApp> {
                 stream: _flutterRadioPlayer.isPlayingStream,
                 initialData: widget.playerState,
                 builder:
-                    (BuildContext context, AsyncSnapshot<String> snapshot) {
-                  String returnData = snapshot.data;
+                    (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                  String returnData = snapshot.data!;
                   print("object data: " + returnData);
                   switch (returnData) {
                     case FlutterRadioPlayer.flutter_radio_stopped:
@@ -63,7 +63,6 @@ class _MyAppState extends State<MyApp> {
                           await initRadioService();
                         },
                       );
-                      break;
                     case FlutterRadioPlayer.flutter_radio_loading:
                       return Text("Loading stream...");
                     case FlutterRadioPlayer.flutter_radio_error:
@@ -74,7 +73,6 @@ class _MyAppState extends State<MyApp> {
                           await initRadioService();
                         },
                       );
-                      break;
                     default:
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -99,7 +97,6 @@ class _MyAppState extends State<MyApp> {
                           )
                         ],
                       );
-                      break;
                   }
                 },
               ),
@@ -121,11 +118,11 @@ class _MyAppState extends State<MyApp> {
                 height: 15,
               ),
               Text("Metadata Track "),
-              StreamBuilder<String>(
+              StreamBuilder<String?>(
                 initialData: "",
                 stream: _flutterRadioPlayer.metaDataStream,
                 builder: (context, snapshot) {
-                  return Text(snapshot.data);
+                  return Text(snapshot.data!);
                 },
               ),
               ElevatedButton(
@@ -133,7 +130,7 @@ class _MyAppState extends State<MyApp> {
                 child: Text("Change URL"),
                 onPressed: () async {
                   _flutterRadioPlayer.setUrl(
-                    "http://209.133.216.3:7018/;stream.mp3",
+                    "https://n0e.radiojar.com/7csmg90fuqruv?rj-tok=AAABfi5ajaYAnTvcvZGQDWdZIg&rj-ttl=5",
                     "false",
                   );
                 },
