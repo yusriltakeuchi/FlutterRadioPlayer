@@ -190,7 +190,7 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            audioManager!!.requestAudioFocus(focusRequest)
+            audioManager!!.requestAudioFocus(focusRequest!!)
         } else {
             audioManager!!.requestAudioFocus(afChangeListener, AudioEffect.CONTENT_TYPE_MUSIC, 0);
         }
@@ -256,7 +256,14 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
             @SuppressLint("UnspecifiedImmutableFlag")
             override fun createCurrentContentIntent(player: Player): PendingIntent? {
                 var intent = Intent(this@StreamingCore, activity!!.javaClass)
-                var contentPendingIntent = PendingIntent.getActivity(this@StreamingCore, 0, intent, 0);
+                intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                var contentPendingIntent = PendingIntent.getActivity(
+                        this@StreamingCore,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_IMMUTABLE
+                );
                 return contentPendingIntent;
             }
 
