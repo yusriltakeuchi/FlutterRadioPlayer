@@ -6,6 +6,7 @@ buildscript {
     // version numbers
     ext.kotlin_version = '1.5.31'
     ext.exo_player_version = "2.15.1"
+    ext.workVersion = "2.7.0"
 
     repositories {
         google()
@@ -58,6 +59,7 @@ dependencies {
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     implementation "com.google.android.exoplayer:exoplayer:$exo_player_version"
     implementation "com.google.android.exoplayer:extension-mediasession:$exo_player_version"
+    implementation "androidx.work:work-runtime:$workVersion"
     compileOnly files('tmplibs/flutter.jar')
 
 }
