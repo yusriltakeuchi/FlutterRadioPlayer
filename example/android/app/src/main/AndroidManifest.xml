@@ -27,7 +27,7 @@
         </intent>
     </queries>
     <application
-        android:name="io.flutter.app.FlutterApplication"
+        android:name="${applicationName}"
         android:label="flutter_radio_player_example"
         android:exported="true"
         android:icon="@mipmap/ic_launcher">

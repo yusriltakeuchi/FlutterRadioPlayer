@@ -3,10 +3,10 @@ description: Demonstrates how to use the flutter_radio_player plugin.
 publish_to: 'none'
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.17.6 <3.0.0'
 
 dependencies:
-  better_player: ^0.0.79
+  better_player: ^0.0.83
   cupertino_icons: ^1.0.4
   flutter:
     sdk: flutter

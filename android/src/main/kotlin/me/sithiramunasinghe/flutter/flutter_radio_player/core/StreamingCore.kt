@@ -24,11 +24,9 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import androidx.annotation.Nullable
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
+import com.google.android.exoplayer2.metadata.Metadata
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -65,7 +63,7 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
 
     private var audioManager: AudioManager? = null
     private var focusRequest: AudioFocusRequest? = null
-    private var player: SimpleExoPlayer? = null
+    private var player: ExoPlayer? = null
     private var mediaSessionConnector: MediaSessionConnector? = null
     private var mediaSession: MediaSession? = null
     private var currentMetadata: String = ""
@@ -199,9 +197,8 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
         dataSourceFactory = DefaultDataSourceFactory(context, Util.getUserAgent(context, appName))
 
         val audioSource: MediaSource = buildMediaSource(dataSourceFactory, streamUrl!!)
-
-        val playerEvents = object : Player.EventListener {
-
+        logger.info("STREAM URL $streamUrl")
+        val playerEvents = object : Player.Listener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 playbackStatus = when (playbackState) {
                     Player.STATE_BUFFERING -> {
@@ -227,6 +224,16 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
                 }
                 logger.info("onPlayerStateChanged: $playbackStatus")
             }
+
+            override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+                super.onMediaMetadataChanged(mediaMetadata)
+                updateMetadata(mediaMetadata)
+            }
+
+            override fun onPlaylistMetadataChanged(mediaMetadata: MediaMetadata) {
+                super.onPlaylistMetadataChanged(mediaMetadata)
+                updateMetadata(mediaMetadata)
+            }
 //            override fun onPlayerError(error: ExoPlaybackException) {
 //                pushEvent(FLUTTER_RADIO_PLAYER_ERROR)
 //                playbackStatus = PlaybackStatus.ERROR
@@ -242,11 +249,17 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
         }
 
         // register our meta data listener
-        player?.addMetadataOutput {
-            currentMetadata = it.get(0).toString()
-            localBroadcastManager.sendBroadcast(broadcastMetaDataIntent.putExtra("meta_data", currentMetadata))
-            playerNotificationManager?.invalidate()
-        }
+        val metaData = player?.mediaMetadata
+        val data = "${metaData?.mediaUri}"
+        currentMetadata = data
+        localBroadcastManager.sendBroadcast(broadcastMetaDataIntent.putExtra("meta_data", currentMetadata))
+        playerNotificationManager?.invalidate()
+//
+//        player?.addMetadataOutput {
+//            currentMetadata = it.get(0).toString()
+//            localBroadcastManager.sendBroadcast(broadcastMetaDataIntent.putExtra("meta_data", currentMetadata))
+//            playerNotificationManager?.invalidate()
+//        }
 
         val mediaDescriptionAdapter: PlayerNotificationManager.MediaDescriptionAdapter = object : PlayerNotificationManager.MediaDescriptionAdapter {
             override fun getCurrentContentTitle(player: Player): String {
@@ -443,15 +456,25 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
         localBroadcastManager.sendBroadcast(Intent(broadcastActionName).putExtra("status", eventName))
     }
 
+    private fun updateMetadata(mediaMetadata: MediaMetadata) {
+        val data = "${mediaMetadata.mediaUri}"
+        currentMetadata = data
+        localBroadcastManager.sendBroadcast(broadcastMetaDataIntent.putExtra("meta_data", currentMetadata))
+    }
+
     /**
      * Build the media source depending of the URL content type.
      */
     private fun buildMediaSource(dataSourceFactory: DefaultDataSourceFactory, streamUrl: String): MediaSource {
 
         val uri = Uri.parse(streamUrl)
+        val mediaItemBuilder = MediaItem.Builder()
+        mediaItemBuilder.setUri(uri)
+        logger.info("GET URI MEDIA SOURCE $uri")
+        val mediaItem = mediaItemBuilder.build()
         return when (val type = Util.inferContentType(uri)) {
-            C.TYPE_HLS -> HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
-            C.TYPE_OTHER -> ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
+            C.TYPE_HLS -> HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
+            C.TYPE_OTHER -> ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
             else -> {
                 throw IllegalStateException("Unsupported type: $type")
             }
