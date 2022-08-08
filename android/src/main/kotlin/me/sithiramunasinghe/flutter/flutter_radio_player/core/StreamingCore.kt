@@ -197,7 +197,6 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
         dataSourceFactory = DefaultDataSourceFactory(context, Util.getUserAgent(context, appName))
 
         val audioSource: MediaSource = buildMediaSource(dataSourceFactory, streamUrl!!)
-        logger.info("STREAM URL $streamUrl")
         val playerEvents = object : Player.Listener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 playbackStatus = when (playbackState) {
@@ -456,8 +455,8 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
         localBroadcastManager.sendBroadcast(Intent(broadcastActionName).putExtra("status", eventName))
     }
 
-    private fun updateMetadata(mediaMetadata: MediaMetadata) {
-        val data = "${mediaMetadata.mediaUri}"
+    private fun updateMetadata(metadata: MediaMetadata) {
+        val data = """{"title": "${metadata.title}", "station": "${metadata.station}"}"""
         currentMetadata = data
         localBroadcastManager.sendBroadcast(broadcastMetaDataIntent.putExtra("meta_data", currentMetadata))
     }
@@ -470,7 +469,6 @@ class StreamingCore : Service(), AudioManager.OnAudioFocusChangeListener {
         val uri = Uri.parse(streamUrl)
         val mediaItemBuilder = MediaItem.Builder()
         mediaItemBuilder.setUri(uri)
-        logger.info("GET URI MEDIA SOURCE $uri")
         val mediaItem = mediaItemBuilder.build()
         return when (val type = Util.inferContentType(uri)) {
             C.TYPE_HLS -> HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)

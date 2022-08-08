@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +30,7 @@ class _MyAppState extends State<MyApp> {
       await _flutterRadioPlayer.init(
         "Flutter Radio Example",
         "Live",
-        "https://n0e.radiojar.com/7csmg90fuqruv?rj-tok=AAABfi5ajaYAnTvcvZGQDWdZIg&rj-ttl=5",
+        "https://s2.radio.co/sf58a82d7d/listen",
         "false",
       );
     } on PlatformException {
@@ -122,7 +123,14 @@ class _MyAppState extends State<MyApp> {
                 initialData: "",
                 stream: _flutterRadioPlayer.metaDataStream,
                 builder: (context, snapshot) {
-                  return Text(snapshot.data!);
+                  if (snapshot.hasData) {
+                    var json = jsonDecode(snapshot.data as String);
+                    return Text(
+                      "${json['title']} - ${json['station']}",
+                      textAlign: TextAlign.center
+                    );
+                  }
+                  return Text("");
                 },
               ),
               ElevatedButton(
@@ -130,7 +138,7 @@ class _MyAppState extends State<MyApp> {
                 child: Text("Change URL"),
                 onPressed: () async {
                   _flutterRadioPlayer.setUrl(
-                    "https://n0e.radiojar.com/7csmg90fuqruv?rj-tok=AAABfi5ajaYAnTvcvZGQDWdZIg&rj-ttl=5",
+                    "https://s2.radio.co/sf58a82d7d/listen",
                     "false",
                   );
                 },
